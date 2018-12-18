@@ -8,7 +8,8 @@ class Personaje():
 		self._defense=defense
 		self._vida=vida
 
-
+	def getKey(self):
+		return self._nombre
 	#-------------------Sets and gets------------------------
 	def setNombre(self,nombre):
 		self._nombre=nombre

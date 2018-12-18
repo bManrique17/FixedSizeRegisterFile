@@ -1,14 +1,18 @@
-class Buffer:
-    def __init__(self):
+import Personaje
 
-    def setMetadata(self,file,objectIndicator):
+class Buffer:
+    def __init__(self,file,objectIndicator):
+        #seeting metaData
+        self.listAtributesSize = [9]
         self.objectIndicator = objectIndicator
-        dataLine = file.readline(objectIndicator)
-        infoObjectList = dataLine.split(",")
-        self.numAtributes = int(infoObjectList[1])
+        metaDataFile = open(file,"r")
+        dataLine = metaDataFile.readlines(objectIndicator)
+        infoObjectList = dataLine[0].split(",")
+        self.numAtributes = int(infoObjectList[1])        
         for i in range(0,self.numAtributes+1):
-            self.listAtributesSize = int(infoObjectList[i+2])
-        self.regSize = listAtributesSize[len(listAtributesSize)-1]
+            self.listAtributesSize.append(int(infoObjectList[i+2]))
+        self.regSize = self.listAtributesSize[len(self.listAtributesSize)-1]    
+        metaDataFile.close()
 
     def setRootKey(self,key):
         self.rootKey = key
@@ -16,8 +20,8 @@ class Buffer:
     def getRootKey(self,key):
         self.rootKey = key
 
-    def setActualObject(self,object):
-        self.actualObject = object
+    def setActualObject(self,_object):
+        self.actualObject = _object    
 
     def getActualObjectKey(self):
         return self.actualObject.getKey()
@@ -25,45 +29,46 @@ class Buffer:
     def getRegSize(self):
         return self.regSize
 
-    def read(self,file):
-        dataLine = file.read(self.listAtributesSize[len(listAtributesSize)-1])
+    def read(self,file):        
+        dataLine = file.read(self.listAtributesSize[len(self.listAtributesSize)-1])
         cont = 0
         indexFlag = 0
         atributes = [0,0,0,0,0,0,0,0,0]
         for i in range (0,self.numAtributes):
-            atributes[cont] = dataLine[indexFlag:indexFlag+listAtributesSize[cont]]
-            indexFlag = indexFlag+listAtributesSize[cont]
+            atributes[cont] = dataLine[indexFlag:indexFlag+self.listAtributesSize[cont]]
+            indexFlag = indexFlag+self.listAtributesSize[cont]
             cont = cont+1
-            atributes[cont] = atributes[cont].rstrip()
-        if self.objectIndicator == 1:
-            self.actualObject = Personaje(atributes[0],atributes[1],atributes[2],atributes[3])
+            atributes[cont] = str(atributes[cont]).rstrip()
+        if self.objectIndicator == 0:            
+            self.actualObject = Personaje.Personaje(atributes[0],atributes[1],atributes[2],atributes[3])
+        elif self.objectIndicator == 1:
+            self.actualObject = PartidaGuardada.PartidaGuardada(atributes[0],atributes[1],atributes[2])
         elif self.objectIndicator == 2:
-            self.actualObject = PartidaGuardada(atributes[0],atributes[1],atributes[2])
-        elif self.objectIndicator == 3:
-            self.actualObject = Bitacora(atributes[0],atributes[1],atributes[2],atributes[3],atributes[4])
+            self.actualObject = Bitacora.Bitacora(atributes[0],atributes[1],atributes[2],atributes[3],atributes[4])
         else:
-            self.actualObject = Item(atributes[0],atributes[1],atributes[2])
+            self.actualObject = Item.Item(atributes[0],atributes[1],atributes[2])
+        return self.actualObject
 
-    def write(self,file):
-        if self.objectIndicator == 1:            
-            file.write(getActualObject().getNombre()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombre()) ) +
-                getActualObject().getDamage()+" "*( self.listAtributesSize[1]-len(getActualObject().getDamage()) ) +
-                getActualObject().getDefense()+" "*( self.listAtributesSize[2]-len(getActualObject().getDefense()) ) +
-                getActualObject().getVida()+" "*( self.listAtributesSize[3]-len(getActualObject().getVida()) ) )
+    def write(self,file):        
+        if self.objectIndicator == 0:            
+            file.write(self.actualObject.getNombre()+" "*( self.listAtributesSize[0]-len(self.actualObject.getNombre()) ) +
+                str(self.actualObject.getDamage())+" "*( self.listAtributesSize[1]-len(str(self.actualObject.getDamage())) ) +
+                str(self.actualObject.getDefense())+" "*( self.listAtributesSize[2]-len(str(self.actualObject.getDefense())) ) +
+                str(self.actualObject.getVida())+" "*( self.listAtributesSize[3]-len(str(self.actualObject.getVida())) ) )
+        elif self.objectIndicator == 1:
+            file.write(self.actualObject.getNombrePartida()+" "*( self.listAtributesSize[0]-len(self.actualObject.getNombrePartida()) ) +
+                self.actualObject.getMisionesCompletadas()+" "*( self.listAtributesSize[1]-len(self.actualObject.getMisionesCompletadas()) ) +
+                self.actualObject.getArmadurasObtenidas()+" "*( self.listAtributesSize[2]-len(self.actualObject.getArmadurasObtenidas()) ) )                
         elif self.objectIndicator == 2:
-            file.write(getActualObject().getNombrePartida()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombrePartida()) ) +
-                getActualObject().getMisionesCompletadas()+" "*( self.listAtributesSize[1]-len(getActualObject().getMisionesCompletadas()) ) +
-                getActualObject().getArmadurasObtenidas()+" "*( self.listAtributesSize[2]-len(getActualObject().getArmadurasObtenidas()) ) )                
-        elif self.objectIndicator == 3:
-            file.write(getActualObject().getNombrePartida()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombrePartida()) ) +
-                getActualObject().getFecha()+" "*( self.listAtributesSize[1]-len(getActualObject().getFecha()) ) +
-                getActualObject().getHoraEntrada()+" "*( self.listAtributesSize[1]-len(getActualObject().getHoraEntrada()) ) +
-                getActualObject().getHoraSalida()+" "*( self.listAtributesSize[1]-len(getActualObject().getHoraSalida()) ) +                
-                getActualObject().getHoraInsert()+" "*( self.listAtributesSize[3]-len(getActualObject().getHoraInsert()) ) )
+            file.write(self.actualObject.getNombrePartida()+" "*( self.listAtributesSize[0]-len(self.actualObject.getNombrePartida()) ) +
+                self.actualObject.getFecha()+" "*( self.listAtributesSize[1]-len(self.actualObject.getFecha()) ) +
+                self.actualObject.getHoraEntrada()+" "*( self.listAtributesSize[1]-len(self.actualObject.getHoraEntrada()) ) +
+                self.actualObject.getHoraSalida()+" "*( self.listAtributesSize[1]-len(self.actualObject.getHoraSalida()) ) +                
+                self.actualObject.getHoraInsert()+" "*( self.listAtributesSize[3]-len(self.actualObject.getHoraInsert()) ) )
         else:
-            file.write(getActualObject().getNombre()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombre()) ) +
-                getActualObject().getNombreMonstruo()+" "*( self.listAtributesSize[1]-len(getActualObject().getNombreMonstruo()) ) +
-                getActualObject().getTipo()+" "*( self.listAtributesSize[2]-len(getActualObject().getTipo()) ) )        
+            file.write(self.actualObject.getNombre()+" "*( self.listAtributesSize[0]-len(self.actualObject.getNombre()) ) +
+                self.actualObject.getNombreMonstruo()+" "*( self.listAtributesSize[1]-len(self.actualObject.getNombreMonstruo()) ) +
+                self.actualObject.getTipo()+" "*( self.listAtributesSize[2]-len(self.actualObject.getTipo()) ) )
     
     def erase(self,file):        
         file.write(" "*self.listAtributesSize[0])    

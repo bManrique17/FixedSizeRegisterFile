@@ -1,15 +1,17 @@
 import TDAFile
 import Buffer
-import Nicolle
+import Bitacora
+import Item
+import PartidaGuardada
+import Personaje
 
-print("hola")
-nicolle = Nicolle.Nicolle("aaaaa","bbbbb","kkkkk")
 file = TDAFile.TDAFile("test.txt")
-buffer = Buffer.Buffer()
-buffer.setActualObject(nicolle)
-file.createFile()
-file.openFileW()
-file.insert(buffer)
+file.openFile()
+Manrique = Personaje.Personaje("Bryan",1,1,1)
+bufferPersonajes = Buffer.Buffer("MetadataFile.txt",0)
+bufferPersonajes.setActualObject(Manrique)
+file.insert(bufferPersonajes)
+print(file.find(bufferPersonajes)[1].getDefense())
 file.closeFile()
 
 

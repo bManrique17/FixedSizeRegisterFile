@@ -13,74 +13,48 @@
 
 import os
 import Buffer
+import BTreeNode
+import BTreeKey
 
 class TDAFile:
     def __init__(self,fileName):
         self.fileName = fileName        
-    
+        self.root = None
+
     def createFile(self,fileName):
         self.file = open(fileName,'w')
         self.file.close()
     def createFile(self):
         self.file = open(self.fileName,'w')
         self.file.close()        
-    def openFileW(self):
-        self.file = open(self.fileName,'w')
-    def openFileR(self):
-        self.file = open(self.fileName,'r')
+    def openFile(self):
+        self.file = open(self.fileName,'a+')    
     def closeFile(self):
         self.file.close()
     def deleteFile(self):
         os.remove(fileName)
     def insert(self,buffer):
-        if self.rootKey is None:
-            self.rootKey = bTreeKey(True,True,None,None,buffer.getActualObject().getKey())
+        if self.root is None:            
+            self.root = BTreeNode.BTreeNode(True,True,None,None,BTreeKey.BTreeKey(buffer.getActualObjectKey(),0,None,None))
         self.file.seek(self.file.tell())
         buffer.write(self.file)
     def update(self,bufferOld,bufferNew):
         position = find(bufferOld)[0]
         if position != -1:
-            file.seek(position)
-            bufferNew.write(file)
+            self.file.seek(position)
+            bufferNew.write(self.file)
     def find(self,buffer):
         found = False
-        actualNode = self.rootKey
-        while True:
-            positionKey = actualNode.contains(buffer.getActualObjectKey())
-            if actualNode.contains(buffer.getActualObjectKey()) != -1:
-                file.seek(positionKey)
-                return [positionKey,buffer.read(file)]
-                
+        actualNode = self.root
+        while True:            
+            positionKey = actualNode.contains(buffer.getActualObjectKey())            
+            if positionKey != -1:                                
+                self.file.seek(actualNode.getKey(positionKey).getFilePosition())                
+                return [positionKey,buffer.read(self.file)]
+        
     def deleteReg(self,buffer):
         toRemove = find(buffer)[0]
         if toRemove != -1:
-            file.seek(toRemove)
-            buffer.erase(file)
+            self.file.seek(toRemove)
+            buffer.erase(self.file)
 
-    class bTreeKey:
-        def __init__(self,key,filePosition,rightBrother,leftBrother)
-            self.key = key
-            self.filePosition = filePosition
-            self.rightBrother = rightBrother
-            self.leftBrother = leftBrother                
-
-        def getFilePosition():
-            return filePosition
-
-    class bTreeNode:
-        def __init__(self,isRoot,isLeaf,rightSon,leftSon,key):
-            self.isRoot = isRoot
-            self.isLeaf = isLeaf            
-            self.rightSon = rightSon
-            self.leftSon = leftSon
-            self.keyList = [key,0,0]
-        
-        def contains(self,key):
-            if key == keyList[0]:
-                return keyList[0].getFilePosition()
-            elif key == keyList[1]:
-                return keyList[1].getFilePosition()
-            elif key == keyList[2]:
-                return keyList[2].getFilePosition()
-            else:
-                return -1
