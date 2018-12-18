@@ -8,6 +8,13 @@ class Buffer:
         self.numAtributes = int(infoObjectList[1])
         for i in range(0,self.numAtributes+1):
             self.listAtributesSize = int(infoObjectList[i+2])
+        self.regSize = listAtributesSize[len(listAtributesSize)-1]
+
+    def setRootKey(self,key):
+        self.rootKey = key
+
+    def getRootKey(self,key):
+        self.rootKey = key
 
     def setActualObject(self,object):
         self.actualObject = object
@@ -39,35 +46,25 @@ class Buffer:
 
     def write(self,file):
         if self.objectIndicator == 1:            
-            file.write(getActualObject().getNombre()+" "*len(self.listAtributesSize[0]-getActualObject().getNombre()) +
-                getActualObject().getDamage()+" "*len(self.listAtributesSize[0]-getActualObject().getDamage()) +
-                getActualObject().getDefense()+" "*len(self.listAtributesSize[0]-getActualObject().getDefense()) +
-                getActualObject().getVida()+" "*len(self.listAtributesSize[0]-getActualObject().getVida()))
+            file.write(getActualObject().getNombre()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombre()) ) +
+                getActualObject().getDamage()+" "*( self.listAtributesSize[1]-len(getActualObject().getDamage()) ) +
+                getActualObject().getDefense()+" "*( self.listAtributesSize[2]-len(getActualObject().getDefense()) ) +
+                getActualObject().getVida()+" "*( self.listAtributesSize[3]-len(getActualObject().getVida()) ) )
         elif self.objectIndicator == 2:
-            file.write(getActualObject().getNombre()+" "*len(self.listAtributesSize[0]-getActualObject().getNombre()) +
-                getActualObject().getDamage()+" "*len(self.listAtributesSize[0]-getActualObject().getDamage()) +
-                getActualObject().getDefense()+" "*len(self.listAtributesSize[0]-getActualObject().getDefense()) +
-                getActualObject().getVida()+" "*len(self.listAtributesSize[0]-getActualObject().getVida()))
+            file.write(getActualObject().getNombrePartida()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombrePartida()) ) +
+                getActualObject().getMisionesCompletadas()+" "*( self.listAtributesSize[1]-len(getActualObject().getMisionesCompletadas()) ) +
+                getActualObject().getArmadurasObtenidas()+" "*( self.listAtributesSize[2]-len(getActualObject().getArmadurasObtenidas()) ) )                
         elif self.objectIndicator == 3:
-            file.write(getActualObject().getNombre()+" "*len(self.listAtributesSize[0]-getActualObject().getNombre()) +
-                getActualObject().getDamage()+" "*len(self.listAtributesSize[0]-getActualObject().getDamage()) +
-                getActualObject().getDefense()+" "*len(self.listAtributesSize[0]-getActualObject().getDefense()) +
-                getActualObject().getVida()+" "*len(self.listAtributesSize[0]-getActualObject().getVida()))
+            file.write(getActualObject().getNombrePartida()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombrePartida()) ) +
+                getActualObject().getFecha()+" "*( self.listAtributesSize[1]-len(getActualObject().getFecha()) ) +
+                getActualObject().getHoraEntrada()+" "*( self.listAtributesSize[1]-len(getActualObject().getHoraEntrada()) ) +
+                getActualObject().getHoraSalida()+" "*( self.listAtributesSize[1]-len(getActualObject().getHoraSalida()) ) +                
+                getActualObject().getHoraInsert()+" "*( self.listAtributesSize[3]-len(getActualObject().getHoraInsert()) ) )
         else:
-            file.write(getActualObject().getNombre()+" "*len(self.listAtributesSize[0]-getActualObject().getNombre()) +
-                getActualObject().getDamage()+" "*len(self.listAtributesSize[0]-getActualObject().getDamage()) +
-                getActualObject().getDefense()+" "*len(self.listAtributesSize[0]-getActualObject().getDefense()) +
-                getActualObject().getVida()+" "*len(self.listAtributesSize[0]-getActualObject().getVida()))
-        file.write()
-
-    def equals(self,buffer):
-        return self.getActualObjectKey() == buffer.getActualObjectKey()
+            file.write(getActualObject().getNombre()+" "*( self.listAtributesSize[0]-len(getActualObject().getNombre()) ) +
+                getActualObject().getNombreMonstruo()+" "*( self.listAtributesSize[1]-len(getActualObject().getNombreMonstruo()) ) +
+                getActualObject().getTipo()+" "*( self.listAtributesSize[2]-len(getActualObject().getTipo()) ) )        
     
-    def erase(self,file):
-        deletedKey = " "*self.listAtributesSize[0]
-        file.write(deletedKey)
-
-
-
-    
+    def erase(self,file):        
+        file.write(" "*self.listAtributesSize[0])    
     

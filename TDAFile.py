@@ -33,28 +33,54 @@ class TDAFile:
     def deleteFile(self):
         os.remove(fileName)
     def insert(self,buffer):
+        if self.rootKey is None:
+            self.rootKey = bTreeKey(True,True,None,None,buffer.getActualObject().getKey())
         self.file.seek(self.file.tell())
         buffer.write(self.file)
     def update(self,bufferOld,bufferNew):
-        position = find(bufferOld)
-        if(position != -1):
-            self.file.seek(position)
-            bufferNew.write(self.file)
+        position = find(bufferOld)[0]
+        if position != -1:
+            file.seek(position)
+            bufferNew.write(file)
     def find(self,buffer):
-        
-        return buffer.getActualObject()
+        found = False
+        actualNode = self.rootKey
+        while True:
+            positionKey = actualNode.contains(buffer.getActualObjectKey())
+            if actualNode.contains(buffer.getActualObjectKey()) != -1:
+                file.seek(positionKey)
+                return [positionKey,buffer.read(file)]
+                
     def deleteReg(self,buffer):
-        buffer.erase()
+        toRemove = find(buffer)[0]
+        if toRemove != -1:
+            file.seek(toRemove)
+            buffer.erase(file)
+
+    class bTreeKey:
+        def __init__(self,key,filePosition,rightBrother,leftBrother)
+            self.key = key
+            self.filePosition = filePosition
+            self.rightBrother = rightBrother
+            self.leftBrother = leftBrother                
+
+        def getFilePosition():
+            return filePosition
 
     class bTreeNode:
-    def __init__(self,isRoot,isLeaf,rightBrother,leftBrother,rightSon,leftSon):
-        self.isRoot = isRoot
-        self.isLeaf = isLeaf
-        self.rightBrother = rightBrother
-        self.leftBrother = leftBrother
-        self.rightSon = rightSon
-        self.leftSon = leftSon
-        self.keyList = [0,0,0]
-    
-    #def insertKey(self,key):
-        #self.keyList.insert
+        def __init__(self,isRoot,isLeaf,rightSon,leftSon,key):
+            self.isRoot = isRoot
+            self.isLeaf = isLeaf            
+            self.rightSon = rightSon
+            self.leftSon = leftSon
+            self.keyList = [key,0,0]
+        
+        def contains(self,key):
+            if key == keyList[0]:
+                return keyList[0].getFilePosition()
+            elif key == keyList[1]:
+                return keyList[1].getFilePosition()
+            elif key == keyList[2]:
+                return keyList[2].getFilePosition()
+            else:
+                return -1
