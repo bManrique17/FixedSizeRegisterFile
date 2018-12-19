@@ -41,14 +41,15 @@ class TDAFile:
     def insert(self,buffer):
         toInsertKey = buffer.getActualObjectKey()
         if self.root is None:            
-            self.root = BTreeNode.BTreeNode(True,True,None,None,BTreeKey.BTreeKey(buffer.getActualObjectKey(),0,None,None,None))
+            newKey = BTreeKey.BTreeKey(toInsertKey,0,None,None,self.root)
+            self.root = BTreeNode.BTreeNode(True,True,None,newKey)
             buffer.addObjectToQueue()
         else:
             actualNode = self.root
-            if actualNode.isLeaf() and actualNode.getNumKeys() < 3:
+            if actualNode.isLeaf() == True and actualNode.getNumKeys() < 3:
                 actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,actualNode))
             else:
-                while is not actualNode.isLeaf:
+                while not actualNode.isLeaf():
                     if actualNode.getKey(0).getKey() > toInsertKey:
                         actualNode = actualNode.getKey(0).getLeftSon()
                     elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
@@ -60,20 +61,20 @@ class TDAFile:
                 if actualNode.isLeaf() and actualNode.getNumKeys() < 3:
                     actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,actualNode))
                 else:
-                    actualNode = seekNode(actualNode)
-        #self.file.seek(self.file.tell())
-        #buffer.write(self.file)
+                    seekNode(actualNode)        
 
-    def seekNode(self,node,buffer):
-        newKey = BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node)
-        node.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node))
-        toPromoveKey = node.getKey(1)
-        toPromoveKey.setLeftSon(BTreeNode.BTreeNode(False,node.getKey(0).atLeaf(),node.getKey(0),node.getKey(2),node.getFather().getFather(),node.getKey(1)))
-        toPromoveKey.setRightSon()
-        if is not node.isRoot():
-            node = node.getFather()
-            newKey = BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node)
-            node.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node))
+    def seekNode(self,node,key):
+        if node.getNumKeys() == 2:
+            newKey = BTreeKey.BTreeKey(key,self.file.tell()/buffer.getRegSize(),None,None,node)
+            node.addKey(newKey)
+            toPromoveKey = node.getKey(1)
+            toPromoveKey.setLeftSon(BTreeNode.BTreeNode(False,node.getKey(0).atLeaf(),toPromoveKey,node.getKey(1)))
+            toPromoveKey.setRightSon(BTreeNode.BTreeNode(False,node.getKey(2).atLeaf(),toPromoveKey,node.getKey(2)))
+            if toPromoveKey.getOwnNode().getFather() == None:
+                self.root = BTreeNode.BTreeNode(True,False,None,toPromoveKey)
+            else:                
+                seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKey)
+
 
     def update(self,bufferOld,bufferNew):
         position = find(bufferOld)[0]
