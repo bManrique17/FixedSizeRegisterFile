@@ -84,8 +84,8 @@ class TDAFile:
                     else:
                         self.seekNode(actualNode,toInsertKey,pointerPosition,buffer)
 
-    def saveIndexFile(self,node):        
-        #self.auxiliaryStr += 
+    def appendIndexFileInfo(self,key):        
+        self.auxiliaryStr += key+","
 
     def fileSize(self,file):
         string = file.read()
@@ -96,7 +96,7 @@ class TDAFile:
         data = self.availListFile.read().split(",")
         self.availListFile.close()
         if len(data) != 0:
-            return int(data)
+            return int(data[0])
         else:
             return -1
 
@@ -105,6 +105,7 @@ class TDAFile:
         if pointerPosition != -1:
             self.file.seek(pointerPosition)    
             buffer.write(self.file)
+            self.appendIndexFileInfo("gg")
         else:
             pointerPosition = self.fileSize(self.file)
             self.file.seek(pointerPosition)
