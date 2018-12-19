@@ -13,10 +13,13 @@ bufferPersonajes.setActualObject(Manrique)
 file.insert(bufferPersonajes)
 for i in range (0,6):    
     Manrique = Personaje.Personaje("Bryan"+str(i),1+i,1+i,1+i)
+    bufferPersonajes.setActualObject(Manrique)
     file.insert(bufferPersonajes)
 
-Manrique = Personaje.Personaje("Bryan3",4,4,4)
-print(file.find(bufferPersonajes)[1].getDefense())
+Manrique = Personaje.Personaje("Bryan",4,4,4)
+objectttt = file.find(bufferPersonajes)
+if objectttt is not None:
+    print (objectttt[1].getDefense())
 file.closeFile()
 
 

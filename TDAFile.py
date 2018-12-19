@@ -39,17 +39,20 @@ class TDAFile:
         os.remove(fileName)
 
     def insert(self,buffer):
-        toInsertKey = buffer.getActualObjectKey()
+        pointerPosition = self.file.tell()
+        self.file.seek(pointerPosition)
+        buffer.write(self.file)
+        toInsertKey = buffer.getActualObjectKey()        
         if self.root is None:            
             newKey = BTreeKey.BTreeKey(toInsertKey,0,None,None,self.root)
             self.root = BTreeNode.BTreeNode(True,True,None,newKey)
             buffer.addObjectToQueue()
         else:
             actualNode = self.root
-            if actualNode.isLeaf() == True and actualNode.getNumKeys() < 3:
-                actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,actualNode))
+            if actualNode.isLeaf and actualNode.getNumKeys() < 3:
+                actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition/buffer.getRegSize(),None,None,actualNode))
             else:
-                while not actualNode.isLeaf():
+                while not actualNode.isLeaf:
                     if actualNode.getKey(0).getKey() > toInsertKey:
                         actualNode = actualNode.getKey(0).getLeftSon()
                     elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
@@ -58,12 +61,12 @@ class TDAFile:
                         actualNode = actualNode.getKey(1).getRightSon()
                     else:
                         actualNode = actualNode.getKey(2).getRightSon()
-                if actualNode.isLeaf() and actualNode.getNumKeys() < 3:
-                    actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,actualNode))
+                if actualNode.isLeaf and actualNode.getNumKeys() < 3:
+                    actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),pointerPosition/buffer.getRegSize(),None,None,actualNode))
                 else:
-                    seekNode(actualNode)        
-
-    def seekNode(self,node,key):
+                    self.seekNode(actualNode,toInsertKey,pointerPosition)
+    
+    def seekNode(self,node,key,pointerPosition):
         if node.getNumKeys() == 2:
             newKey = BTreeKey.BTreeKey(key,self.file.tell()/buffer.getRegSize(),None,None,node)
             node.addKey(newKey)
@@ -73,7 +76,7 @@ class TDAFile:
             if toPromoveKey.getOwnNode().getFather() == None:
                 self.root = BTreeNode.BTreeNode(True,False,None,toPromoveKey)
             else:                
-                seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKey)
+                seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKe,pointerPositiony)
 
 
     def update(self,bufferOld,bufferNew):
@@ -85,12 +88,24 @@ class TDAFile:
     def find(self,buffer):
         found = False
         actualNode = self.root
-        while True:            
-            positionKey = actualNode.contains(buffer.getActualObjectKey())            
+        toFindKey = buffer.getActualObjectKey()
+        while actualNode is not None:
+            positionKey = actualNode.contains(toFindKey)
             if positionKey != -1:                                
                 self.file.seek(actualNode.getKey(positionKey).getFilePosition())                
                 return [positionKey,buffer.read(self.file)]
-        
+            else:
+                if actualNode.getKey(0).getKey() > toFindKey:
+                    actualNode = actualNode.getKey(0).getLeftSon()
+                elif actualNode.getKey(0).getKey() < toFindKey and actualNode.getKey(1).getKey() > toFindKey:
+                    actualNode = actualNode.getKey(0).getRightSon()
+                elif actualNode.getKey(1).getKey() < toFindKey and actualNode.getKey(2).getKey() > toFindKey:
+                    actualNode = actualNode.getKey(1).getRightSon()
+                else:
+                    actualNode = actualNode.getKey(2).getRightSon()            
+        return None
+                
+            
     def deleteReg(self,buffer):
         toRemove = find(buffer)[0]
         if toRemove != -1:

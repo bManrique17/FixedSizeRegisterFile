@@ -1,4 +1,5 @@
 import BTreeKey
+from operator import itemgetter, attrgetter
 
 class BTreeNode:
     def __init__(self,isRoot,isLeaf,father,key):
@@ -14,20 +15,21 @@ class BTreeNode:
         return True
 
     def addKey(self,key):
-        if keyList[1] is None:
+        if self.keyList[1] is None:
             self.keyList[1] = key
         else:
             self.keyList[2] = key
         self.sortKeyList()
 
     def sortKeyList(self):
-        if len(self.keyList) == 2:
+        if self.getNumKeys == 2:
             if self.keyList[0].getKey() > self.keyList[1].getKey():
                 tempKey = self.keyList[0]
                 self.keyList[0] = self.keyList[1]
                 self.keyList[1] = tempKey
-        else:
-            keyList.sort(self.compare) 
+        elif self.getNumKeys == 3:
+            sorted(self.keyList, key=attrgetter('key'))
+
 
     def compare(self,key1,key2):
         if key1.getKey() < key2.getKey():
@@ -54,7 +56,7 @@ class BTreeNode:
         return cont
 
     def contains(self,key):
-        for i in range (0,4):
+        for i in range (0,3):
             if(key == self.keyList[i].getKey()):
                 return i
         return -1
