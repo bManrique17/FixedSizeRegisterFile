@@ -13,9 +13,13 @@ class Buffer:
             self.listAtributesSize.append(int(infoObjectList[i+2]))
         self.regSize = self.listAtributesSize[len(self.listAtributesSize)-1]    
         metaDataFile.close()
+        self.objectList = []
 
     def setRootKey(self,key):
         self.rootKey = key
+
+    def addObjectToQueue(self):
+        self.objectList.append(self.actualObject)
 
     def getRootKey(self,key):
         self.rootKey = key

@@ -1,18 +1,31 @@
 import BTreeKey
 
 class BTreeNode:
-    def __init__(self,isRoot,isLeaf,rightSon,leftSon,key):
+    def __init__(self,isRoot,isLeaf,rightSon,leftSon,father,key):
         self.isRoot = isRoot
         self.isLeaf = isLeaf            
         self.rightSon = rightSon
         self.leftSon = leftSon        
-        self.keyList = [key,0,0,0]
+        self.father = father
+        self.keyList = [key,None,None]
     
     def addKey(self,key):
-        self.keyList.append(key)
+        if keyList[1] is None:
+            self.keyList[1] = key
+        else
+            self.keyList[2] = key
+
+    def getFather(self):
+        return self.father
+
+    def setFather(self,father):
+        self.father = father
 
     def getKey(self,index):
         return self.keyList[index]
+
+    def getNumKeys(self):
+        return len(keyList)
 
     def contains(self,key):
         for i in range (0,4):
