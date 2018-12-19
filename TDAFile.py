@@ -96,11 +96,14 @@ class TDAFile:
                 self.seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKey,pointerPosition,buffer)
 
 
-    def update(self,bufferOld,bufferNew):
-        position = find(bufferOld)[0]
+    def update(self,buffer):
+        position = find(buffer)[0]
         if position != -1:
             self.file.seek(position)
-            bufferNew.write(self.file)
+            buffer.write(self.file)
+        else
+            self.file.seek(self.file.tell())
+            buffer.write(self.file)
 
     def find(self,buffer):     
         actualNode = self.root
