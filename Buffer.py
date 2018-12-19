@@ -18,8 +18,8 @@ class Buffer:
     def setRootKey(self,key):
         self.rootKey = key
 
-    def addObjectToQueue(self):
-        self.objectList.append(self.actualObject)
+    def getObjectList(self):
+        return self.objectList
 
     def getRootKey(self,key):
         self.rootKey = key
@@ -97,6 +97,6 @@ class Buffer:
                 self.actualObject.getNombreMonstruo()+" "*( self.listAtributesSize[1]-len(self.actualObject.getNombreMonstruo()) ) +
                 self.actualObject.getTipo()+" "*( self.listAtributesSize[2]-len(self.actualObject.getTipo()) ) )
     
-    def erase(self,file):        
-        file.write(" "*self.listAtributesSize[0])    
+    def erase(self,file):
+        file.write("$"*self.listAtributesSize[0])    
     

@@ -20,6 +20,9 @@ class TDAFile:
     def __init__(self,fileName):
         self.fileName = fileName        
         self.root = None
+        ALfileName = fileName[:-4]+"AVL.txt"
+        self.availListFile = open(ALfileName,'w')
+        availListFile.close()
 
     def createFile(self,fileName):
         self.file = open(fileName,'w')
@@ -41,15 +44,71 @@ class TDAFile:
     def getFile(self):
         return self.file
 
+    def loadBTree(self,buffer):
+        for i in range (0,len(buffer.getObjectList())):
+            toInsertKey = buffer.getActualObjectKey()
+            if self.root is None:            
+                newKey = BTreeKey.BTreeKey(toInsertKey,0,None,None,self.root)
+                self.root = BTreeNode.BTreeNode(True,True,None,newKey)            
+            else:            
+                actualNode = self.root
+                if actualNode.isLeaf and actualNode.getNumKeys() < 2:
+                    actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition,None,None,actualNode))
+                else:
+                    while not actualNode.isLeaf and actualNode is not None:   
+                        if actualNode.getNumKeys() == 1:
+                            if actualNode.getKey(0).getKey() > toInsertKey:                    
+                                actualNode = actualNode.getKey(0).getLeftSon()
+                            else:
+                                actualNode = actualNode.getKey(0).getRightSon()
+                        elif actualNode.getNumKeys() == 2:
+                            if actualNode.getKey(0).getKey() > toInsertKey:                    
+                                actualNode = actualNode.getKey(0).getLeftSon()
+                            elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
+                                actualNode = actualNode.getKey(0).getRightSon()                    
+                            else:
+                                actualNode = actualNode.getKey(1).getRightSon()
+                        else:
+                            if actualNode.getKey(0).getKey() > toInsertKey:                    
+                                actualNode = actualNode.getKey(0).getLeftSon()
+                            elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
+                                actualNode = actualNode.getKey(0).getRightSon()
+                            elif actualNode.getKey(1).getKey() < toInsertKey and actualNode.getKey(2).getKey() > toInsertKey:
+                                actualNode = actualNode.getKey(1).getRightSon()                                        
+                            else:                    
+                                actualNode = actualNode.getKey(2).getRightSon()     
+                                                                    
+                    if actualNode.isLeaf and actualNode.getNumKeys() < 2:
+                        actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition,None,None,actualNode))
+                    else:
+                        self.seekNode(actualNode,toInsertKey,pointerPosition,buffer)
+
+    def fileSize(self,file):
+        string = file.read()
+        return len(string)
+
+    def getFreeSpace(self):
+        availListFile.open('r')
+        data = availListFile.read().split(",")
+        availListFile.close
+        if len(data) != 0:
+            return int(data)
+        else:
+            return -1
+
     def insert(self,buffer):
-        pointerPosition = self.file.tell()
-        self.file.seek(pointerPosition)
-        buffer.write(self.file)
-        toInsertKey = buffer.getActualObjectKey()        
+        pointerPosition = self.getFreeSpace()
+        if pointerPosition != -1:
+            self.file.seek(pointerPosition)    
+            buffer.write(self.file)
+        else:
+            pointerPosition = self.fileSize(self.file)
+            self.file.seek(pointerPosition)
+            buffer.write(self.file)
+            toInsertKey = buffer.getActualObjectKey()
         if self.root is None:            
             newKey = BTreeKey.BTreeKey(toInsertKey,0,None,None,self.root)
-            self.root = BTreeNode.BTreeNode(True,True,None,newKey)
-            buffer.addObjectToQueue()        
+            self.root = BTreeNode.BTreeNode(True,True,None,newKey)            
         else:            
             actualNode = self.root
             if actualNode.isLeaf and actualNode.getNumKeys() < 2:
@@ -101,7 +160,7 @@ class TDAFile:
         if position != -1:
             self.file.seek(position)
             buffer.write(self.file)
-        else
+        else:
             self.file.seek(self.file.tell())
             buffer.write(self.file)
 
@@ -140,6 +199,10 @@ class TDAFile:
     def deleteReg(self,buffer):
         toRemove = find(buffer)[0]
         if toRemove != -1:
+            availListFile.open('a+')
+            availListFile.seek(self.fileSize(availListFile))
+            availListFile.write(buffer.getFilePosition+",")
+            availListFile.close()
             self.file.seek(toRemove)
             buffer.erase(self.file)
 
