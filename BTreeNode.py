@@ -14,7 +14,7 @@ class BTreeNode:
                 return False
         return True
 
-    def addKey(self,key):
+    def addKey(self,key):        
         if self.keyList[1] is None:
             self.keyList[1] = key
         else:
@@ -22,22 +22,24 @@ class BTreeNode:
         self.sortKeyList()
 
     def sortKeyList(self):
-        if self.getNumKeys == 2:
+        if self.getNumKeys() == 2:
             if self.keyList[0].getKey() > self.keyList[1].getKey():
                 tempKey = self.keyList[0]
                 self.keyList[0] = self.keyList[1]
-                self.keyList[1] = tempKey
-        elif self.getNumKeys == 3:
-            sorted(self.keyList, key=attrgetter('key'))
-
-
-    def compare(self,key1,key2):
-        if key1.getKey() < key2.getKey():
-            return -1
-        elif key1.getKey() > key2.getKey():
-            return 1
-        else:
-            return 0
+                self.keyList[1] = tempKey            
+        elif self.getNumKeys() == 3:
+            sortList=[self.keyList[0].getKey(),self.keyList[1].getKey(),self.keyList[2].getKey()]
+            sortList.sort()
+            copyList = [self.keyList[0],self.keyList[1],self.keyList[2]]            
+            for i in range (0,3):
+                if copyList[i].getKey() == sortList[0]:
+                    self.keyList[0] = copyList[i]
+            for i in range (0,3):
+                if copyList[i].getKey() == sortList[1]:
+                    self.keyList[1] = copyList[i]
+            for i in range (0,3):
+                if copyList[i].getKey() == sortList[2]:
+                    self.keyList[2] = copyList[i]
 
     def getFather(self):
         return self.father
@@ -56,7 +58,7 @@ class BTreeNode:
         return cont
 
     def contains(self,key):
-        for i in range (0,3):
+        for i in range (0,self.getNumKeys()):
             if(key == self.keyList[i].getKey()):
                 return i
         return -1

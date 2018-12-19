@@ -46,37 +46,51 @@ class TDAFile:
         if self.root is None:            
             newKey = BTreeKey.BTreeKey(toInsertKey,0,None,None,self.root)
             self.root = BTreeNode.BTreeNode(True,True,None,newKey)
-            buffer.addObjectToQueue()
-        else:
+            buffer.addObjectToQueue()        
+        else:            
             actualNode = self.root
-            if actualNode.isLeaf and actualNode.getNumKeys() < 3:
-                actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition/buffer.getRegSize(),None,None,actualNode))
+            if actualNode.isLeaf and actualNode.getNumKeys() < 2:
+                actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition,None,None,actualNode))
             else:
-                while not actualNode.isLeaf:
-                    if actualNode.getKey(0).getKey() > toInsertKey:
-                        actualNode = actualNode.getKey(0).getLeftSon()
-                    elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
-                        actualNode = actualNode.getKey(0).getRightSon()
-                    elif actualNode.getKey(1).getKey() < toInsertKey and actualNode.getKey(2).getKey() > toInsertKey:
-                        actualNode = actualNode.getKey(1).getRightSon()
+                while not actualNode.isLeaf and actualNode is not None:   
+                    if actualNode.getNumKeys() == 1:
+                        if actualNode.getKey(0).getKey() > toInsertKey:                    
+                            actualNode = actualNode.getKey(0).getLeftSon()
+                        else:
+                            actualNode = actualNode.getKey(0).getRightSon()
+                    elif actualNode.getNumKeys() == 2:
+                        if actualNode.getKey(0).getKey() > toInsertKey:                    
+                            actualNode = actualNode.getKey(0).getLeftSon()
+                        elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
+                            actualNode = actualNode.getKey(0).getRightSon()                    
+                        else:
+                            actualNode = actualNode.getKey(1).getRightSon()
                     else:
-                        actualNode = actualNode.getKey(2).getRightSon()
-                if actualNode.isLeaf and actualNode.getNumKeys() < 3:
-                    actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),pointerPosition/buffer.getRegSize(),None,None,actualNode))
+                        if actualNode.getKey(0).getKey() > toInsertKey:                    
+                            actualNode = actualNode.getKey(0).getLeftSon()
+                        elif actualNode.getKey(0).getKey() < toInsertKey and actualNode.getKey(1).getKey() > toInsertKey:
+                            actualNode = actualNode.getKey(0).getRightSon()
+                        elif actualNode.getKey(1).getKey() < toInsertKey and actualNode.getKey(2).getKey() > toInsertKey:
+                            actualNode = actualNode.getKey(1).getRightSon()                                        
+                        else:                    
+                            actualNode = actualNode.getKey(2).getRightSon()     
+                                                                
+                if actualNode.isLeaf and actualNode.getNumKeys() < 2:
+                    actualNode.addKey(BTreeKey.BTreeKey(buffer.getActualObjectKey(),pointerPosition,None,None,actualNode))
                 else:
-                    self.seekNode(actualNode,toInsertKey,pointerPosition)
+                    self.seekNode(actualNode,toInsertKey,pointerPosition,buffer)
     
-    def seekNode(self,node,key,pointerPosition):
-        if node.getNumKeys() == 2:
-            newKey = BTreeKey.BTreeKey(key,self.file.tell()/buffer.getRegSize(),None,None,node)
+    def seekNode(self,node,key,pointerPosition,buffer):        
+        if node.getNumKeys() == 2:            
+            newKey = BTreeKey.BTreeKey(key,pointerPosition,None,None,node)
             node.addKey(newKey)
             toPromoveKey = node.getKey(1)
-            toPromoveKey.setLeftSon(BTreeNode.BTreeNode(False,node.getKey(0).atLeaf(),toPromoveKey,node.getKey(1)))
-            toPromoveKey.setRightSon(BTreeNode.BTreeNode(False,node.getKey(2).atLeaf(),toPromoveKey,node.getKey(2)))
+            toPromoveKey.setLeftSon(BTreeNode.BTreeNode(False,node.getKey(0).atLeaf(),toPromoveKey.getOwnNode(),node.getKey(0)))
+            toPromoveKey.setRightSon(BTreeNode.BTreeNode(False,node.getKey(2).atLeaf(),toPromoveKey.getOwnNode(),node.getKey(2)))
             if toPromoveKey.getOwnNode().getFather() == None:
-                self.root = BTreeNode.BTreeNode(True,False,None,toPromoveKey)
+                self.root = BTreeNode.BTreeNode(True,False,None,toPromoveKey)                                
             else:                
-                seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKe,pointerPositiony)
+                self.seekNode(toPromoveKey.getOwnNode().getFather(),toPromoveKey,pointerPosition,buffer)
 
 
     def update(self,bufferOld,bufferNew):
@@ -85,24 +99,36 @@ class TDAFile:
             self.file.seek(position)
             bufferNew.write(self.file)
 
-    def find(self,buffer):
-        found = False
+    def find(self,buffer):     
         actualNode = self.root
         toFindKey = buffer.getActualObjectKey()
         while actualNode is not None:
-            positionKey = actualNode.contains(toFindKey)
-            if positionKey != -1:                                
+            positionKey = actualNode.contains(toFindKey)            
+            if positionKey != -1:                
                 self.file.seek(actualNode.getKey(positionKey).getFilePosition())                
                 return [positionKey,buffer.read(self.file)]
             else:
-                if actualNode.getKey(0).getKey() > toFindKey:
-                    actualNode = actualNode.getKey(0).getLeftSon()
-                elif actualNode.getKey(0).getKey() < toFindKey and actualNode.getKey(1).getKey() > toFindKey:
-                    actualNode = actualNode.getKey(0).getRightSon()
-                elif actualNode.getKey(1).getKey() < toFindKey and actualNode.getKey(2).getKey() > toFindKey:
-                    actualNode = actualNode.getKey(1).getRightSon()
+                if actualNode.getNumKeys() == 1:
+                    if actualNode.getKey(0).getKey() > toFindKey:                    
+                        actualNode = actualNode.getKey(0).getLeftSon()
+                    else:
+                        actualNode = actualNode.getKey(0).getRightSon()
+                elif actualNode.getNumKeys() == 2:
+                    if actualNode.getKey(0).getKey() > toFindKey:                    
+                        actualNode = actualNode.getKey(0).getLeftSon()
+                    elif actualNode.getKey(0).getKey() < toFindKey and actualNode.getKey(1).getKey() > toFindKey:
+                        actualNode = actualNode.getKey(0).getRightSon()                    
+                    else:
+                        actualNode = actualNode.getKey(1).getRightSon()
                 else:
-                    actualNode = actualNode.getKey(2).getRightSon()            
+                    if actualNode.getKey(0).getKey() > toFindKey:                    
+                        actualNode = actualNode.getKey(0).getLeftSon()
+                    elif actualNode.getKey(0).getKey() < toFindKey and actualNode.getKey(1).getKey() > toFindKey:
+                        actualNode = actualNode.getKey(0).getRightSon()
+                    elif actualNode.getKey(1).getKey() < toFindKey and actualNode.getKey(2).getKey() > toFindKey:
+                        actualNode = actualNode.getKey(1).getRightSon()                                        
+                    else:                    
+                        actualNode = actualNode.getKey(2).getRightSon()         
         return None
                 
             

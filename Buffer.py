@@ -34,15 +34,15 @@ class Buffer:
         return self.regSize
 
     def read(self,file):        
-        dataLine = file.read(self.listAtributesSize[len(self.listAtributesSize)-1])
+        dataLine = file.read(self.regSize)        
         cont = 0
         indexFlag = 0
         atributes = [0,0,0,0,0,0,0,0,0]
         for i in range (0,self.numAtributes):
             atributes[cont] = dataLine[indexFlag:indexFlag+self.listAtributesSize[cont]]
             indexFlag = indexFlag+self.listAtributesSize[cont]
-            cont = cont+1
-            atributes[cont] = str(atributes[cont]).rstrip()
+            cont += 1
+            atributes[cont] = str(atributes[cont]).rstrip()            
         if self.objectIndicator == 0:            
             self.actualObject = Personaje.Personaje(atributes[0],atributes[1],atributes[2],atributes[3])
         elif self.objectIndicator == 1:
