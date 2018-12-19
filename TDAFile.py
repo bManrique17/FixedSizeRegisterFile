@@ -38,6 +38,9 @@ class TDAFile:
     def deleteFile(self):
         os.remove(fileName)
 
+    def getFile(self):
+        return self.file
+
     def insert(self,buffer):
         pointerPosition = self.file.tell()
         self.file.seek(pointerPosition)
@@ -130,8 +133,7 @@ class TDAFile:
                     else:                    
                         actualNode = actualNode.getKey(2).getRightSon()         
         return None
-                
-            
+                        
     def deleteReg(self,buffer):
         toRemove = find(buffer)[0]
         if toRemove != -1:

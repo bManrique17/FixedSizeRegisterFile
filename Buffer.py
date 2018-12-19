@@ -33,6 +33,29 @@ class Buffer:
     def getRegSize(self):
         return self.regSize
 
+    def readEverything(self,file):
+        fileObject = file.getFile()
+        fileObject.seek(0)
+        dataLines = fileObject.readLines()
+        for j in range (0,len(dataLines)):
+            cont = 0
+            indexFlag = 0
+            atributes = [0,0,0,0,0,0,0,0,0]
+            for i in range (0,self.numAtributes):
+                atributes[cont] = dataLine[indexFlag:indexFlag+self.listAtributesSize[cont]]
+                indexFlag = indexFlag+self.listAtributesSize[cont]
+                cont += 1
+                atributes[cont] = str(atributes[cont]).rstrip()            
+            if self.objectIndicator == 0:            
+                self.objectList.append(Personaje.Personaje(atributes[0],atributes[1],atributes[2],atributes[3]))
+            elif self.objectIndicator == 1:
+                self.objectList.append(PartidaGuardada.PartidaGuardada(atributes[0],atributes[1],atributes[2]))
+            elif self.objectIndicator == 2:
+                self.objectList.append(Bitacora.Bitacora(atributes[0],atributes[1],atributes[2],atributes[3],atributes[4]))
+            else:
+                self.objectList.append(Item.Item(atributes[0],atributes[1],atributes[2]))
+        return self.objectList
+
     def read(self,file):        
         dataLine = file.read(self.regSize)        
         cont = 0
