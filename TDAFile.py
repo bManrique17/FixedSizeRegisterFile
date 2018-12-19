@@ -20,8 +20,8 @@ class TDAFile:
     def __init__(self,fileName):
         self.fileName = fileName        
         self.root = None
-        ALfileName = fileName[:-4]+"AVL.txt"
-        self.availListFile = open(ALfileName,'w')
+        self.ALfileName = fileName[:-4]+"AVL.txt"
+        self.availListFile = open(self.ALfileName,'w')
         availListFile.close()
 
     def createFile(self,fileName):
@@ -83,14 +83,17 @@ class TDAFile:
                     else:
                         self.seekNode(actualNode,toInsertKey,pointerPosition,buffer)
 
+    def saveIndexFile(self):
+
+
     def fileSize(self,file):
         string = file.read()
         return len(string)
 
     def getFreeSpace(self):
-        availListFile.open('r')
+        availListFile.open(self.ALfileName,'r')
         data = availListFile.read().split(",")
-        availListFile.close
+        availListFile.close()
         if len(data) != 0:
             return int(data)
         else:
@@ -199,7 +202,7 @@ class TDAFile:
     def deleteReg(self,buffer):
         toRemove = find(buffer)[0]
         if toRemove != -1:
-            availListFile.open('a+')
+            availListFile.open(self.ALfileName,'a+')
             availListFile.seek(self.fileSize(availListFile))
             availListFile.write(buffer.getFilePosition+",")
             availListFile.close()
