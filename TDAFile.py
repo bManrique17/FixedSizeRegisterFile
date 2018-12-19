@@ -68,7 +68,7 @@ class TDAFile:
         newKey = BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node)
         node.addKey(BTreeKey.BTreeKey(buffer.getActualObject(),self.file.tell()/buffer.getRegSize(),None,None,node))
         toPromoveKey = node.getKey(1)
-        toPromoveKey.setLeftSon(BTreeNode.BTreeNode(node.getKey(1)))
+        toPromoveKey.setLeftSon(BTreeNode.BTreeNode(False,node.getKey(0).atLeaf(),node.getKey(0),node.getKey(2),node.getFather().getFather(),node.getKey(1)))
         toPromoveKey.setRightSon()
         if is not node.isRoot():
             node = node.getFather()

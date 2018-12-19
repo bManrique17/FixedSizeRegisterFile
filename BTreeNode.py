@@ -1,11 +1,9 @@
 import BTreeKey
 
 class BTreeNode:
-    def __init__(self,isRoot,isLeaf,rightSon,leftSon,father,key):
+    def __init__(self,isRoot,isLeaf,father,key):
         self.isRoot = isRoot
-        self.isLeaf = isLeaf            
-        self.rightSon = rightSon
-        self.leftSon = leftSon        
+        self.isLeaf = isLeaf              
         self.father = father
         self.keyList = [key,None,None]
     

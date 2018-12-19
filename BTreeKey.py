@@ -6,6 +6,9 @@ class BTreeKey:
         self.leftSon = leftSon
         self.ownNode = ownNode
 
+    def atLeaf(self):
+        return self.leftSon == None and self.rightSon None
+
     def getOwnNode(self):
         return self.ownNode
 
